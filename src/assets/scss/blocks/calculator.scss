@@ -1,0 +1,33 @@
+.calculator {
+  max-width: 310px;
+  min-width: 310px;
+}
+
+.calculator__container {
+
+}
+
+.calculator__view {
+  min-height: 200px;
+
+  background-color: black;
+}
+
+.calculator__menu {
+  display: grid;
+  grid-template-areas: "del change percent divide"
+             "seven eight nine multiply"
+             "four five six minus"
+             "one two three plus"
+             "zero comma equals equals";
+}
+
+.calculator__button {
+  height: 75px;
+
+  background-color: grey;
+
+  &--action {
+    background-color: red;
+  }
+}

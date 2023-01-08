@@ -1,95 +1,55 @@
 <template>
   <div class="calculator">
-    <!-- Вывод результат -->
-    <p v-if="state === 'processing'">Result: {{ calculation.current }}</p>
-    <p v-else>Result: {{ calculation.previous }}</p>
-    <!-- Кнопки ввода -->
-    <div>
-      <button type="button" v-for="{ label, value } in values" @click="update(value)">{{ label }}</button>
+    <div class="calculator__container">
+      <div class="calculator__view">
+        <!-- Результат вычисления + история -->
+        {{ current }}
+      </div>
+      <div class="calculator__menu">
+        <button :style="{ 'grid-area': 'zero' }" class="calculator__button">0</button>
+        <button :style="{ 'grid-area': 'one' }" class="calculator__button">1</button>
+        <button :style="{ 'grid-area': 'two' }" class="calculator__button" @click="append">2</button>
+        <button :style="{ 'grid-area': 'three' }" class="calculator__button" @click="append">3</button>
+        <button :style="{ 'grid-area': 'four' }" class="calculator__button">4</button>
+        <button :style="{ 'grid-area': 'five' }" class="calculator__button">5</button>
+        <button :style="{ 'grid-area': 'six' }" class="calculator__button">6</button>
+        <button :style="{ 'grid-area': 'seven' }" class="calculator__button">7</button>
+        <button :style="{ 'grid-area': 'eight' }" class="calculator__button">8</button>
+        <button :style="{ 'grid-area': 'nine' }" class="calculator__button">9</button>
+        <button :style="{ 'grid-area': 'comma' }" class="calculator__button">,</button>
+        <button :style="{ 'grid-area': 'del' }" class="calculator__button">AC</button>
+        <button :style="{ 'grid-area': 'change' }" class="calculator__button">+/-</button>
+        <button :style="{ 'grid-area': 'percent' }" class="calculator__button">%</button>
+        <button :style="{ 'grid-area': 'divide' }" class="calculator__button">/</button>
+        <button :style="{ 'grid-area': 'multiply' }" class="calculator__button">X</button>
+        <button :style="{ 'grid-area': 'minus' }" class="calculator__button">-</button>
+        <button :style="{ 'grid-area': 'plus' }" class="calculator__button">+</button>
+        <button :style="{ 'grid-area': 'equals' }" class="calculator__button">=</button>
+      </div>
+      <calculator-button name="zero" type="simple" label="0" value="0" />
+      <calculator-button name="multiply" type="hard" label="X" action="() => { console.log('a') }" />
     </div>
-    <div>-</div>
-    <!-- Кнопки событий -->
-    <div>
-      <button type="button" v-for="action in actions" @click="choice(action.label)">{{ action.label }}</button>
-      <button type="button" @click="calculate">=</button>
-      <button type="button" @click="reset">reset</button>
-    </div>
-    <!-- Вывод истории -->
-    <div>-</div>
-    history: {{ calculation.history }}
   </div>
 </template>
 
 <script>
-  import { values, actions, defaultState } from '../data.js';
+  import CalculatorButton from './CalculatorButton.vue';
 
   export default {
+    name: 'Calculator',
+
+    components: { CalculatorButton },
+
     data() {
       return {
-        values: [ ...values ],
-        actions: { ...actions },
-        calculation: { ...defaultState },
-        state: null,
+        current: 0,
       };
     },
 
-    computed: {
-      operator() {
-        return this.calculation.operator;
-      },
-
-      previous() {
-        return this.calculation.previous;
-      },
-
-      current() {
-        return this.calculation.current;
-      },
-
-      previousIsZero() {
-        return this.previous === 0;
-      },
-    },
-
     methods: {
-      update(value) {
-        this.state = 'processing';
-        this.calculation.current = parseInt([this.current, value].join(''));
-      },
-
-      choice(operator) {
-        // this.calculation.state = 'finish';
-        this.calculation.operator = operator;
-
-        if (this.previousIsZero) {
-          this.calculation.previous = this.current;
-        }
-
-        this.calculation.current = 0;
-      },
-
-      calculate() {
-        // this.calculation.state = 'finish';
-        this.calculation.history.push([this.previous, this.operator, this.current].join(' '));
-        this.calculation.previous = this.actions[this.operator].func(this.previous, this.current);
-        this.calculation.current = 0;
-        this.calculation.operator = null;
-      },
-
-      reset() {
-        this.calculation = { ...defaultState };
-        // this.calculation.state = 'processing';
-        this.calculation.previous = 0;
-        this.calculation.current = 0;
-        this.calculation.operator = null;
-        this.calculation.history = [];
+      append({ target }) {
+        console.log(target.innerHTML);
       },
     },
   }
 </script>
-
-<style>
-  .active {
-    background-color: red;
-  }
-</style>

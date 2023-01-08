@@ -9,14 +9,5 @@ export default {
   components: {
     Calculator,
   },
-
-  data() {
-    return {
-        count: 1,
-    };
-  },
 }
 </script>
-
-<style scoped>
-</style>
