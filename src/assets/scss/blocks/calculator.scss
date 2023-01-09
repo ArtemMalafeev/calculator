@@ -8,9 +8,27 @@
 }
 
 .calculator__view {
-  min-height: 200px;
+  height: 200px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  align-items: end;
+  gap: 20px;
+
+  overflow: scroll;
 
   background-color: #2B2E36;
+}
+
+.container {
+  height: 100%;
+
+  margin: 10px;
+}
+
+.calculator__result {
+  font-size: 64px;
 }
 
 .calculator__menu {

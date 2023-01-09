@@ -2,10 +2,15 @@
   <div class="calculator">
     <div class="calculator__container">
       <div class="calculator__view">
-        <p class="calculator__result">previous: {{ previous }}</p>
-        <p class="calculator__result">current: {{ current }}</p>
-        <p class="calculator__result">Operator: {{ operator }}</p>
-        <p class="calculator__result">State: {{ state }}</p>
+        <div class="container">
+          <div class="calculator__history">
+            <ul class="calculator__items">
+              <li class="calculator__item">f</li>
+            </ul>
+          </div>
+          <p v-if="state === 'processed'" class="calculator__result">{{ previous }}</p>
+          <p v-else class="calculator__result">{{ current }}</p>
+        </div>
       </div>
       <div class="calculator__menu">
         <!-- update -->
@@ -79,6 +84,7 @@
 
       result() {
         if (this.operator !== null) {
+          this.state = 'processed';
           const { action, type } = this.actions[this.operator];
           this.previous = (type === 'binary') ? action(this.previous, this.current) : action(this.previous);
           this.operator = null;
