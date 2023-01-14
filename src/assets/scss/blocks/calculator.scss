@@ -35,11 +35,11 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(5, 75px);
-  grid-template-areas: "del change percent divide"
+  grid-template-areas: "clear reverse percent divide"
              "seven eight nine multiply"
              "four five six minus"
              "one two three plus"
-             "zero zero comma equals";
+             "zero zero dot equals";
 }
 
 .calculator__button {
