@@ -1,30 +1,22 @@
-export const buttons = {
-  'zero': { area: 'zero', span: "0", type: 'field',  },
-  'one': { area: 'one', span: "1", type: 'field',  },
-  'two': { area: 'two', span: "2", type: 'field',  },
-  'three': { area: 'three', span: "3", type: 'field',  },
-  'four': { area: 'four', span: "4", type: 'field',  },
-  'five': { area: 'five', span: "5", type: 'field',  },
-  'six': { area: 'six', span: "6", type: 'field',  },
-  'seven': { area: 'seven', span: "7", type: 'field',  },
-  'eight': { area: 'eight', span: "8", type: 'field',  },
-  'nine': { area: 'nine', span: "9", type: 'field',  },
-  'dot': { area: 'dot', span: ".", type: 'field' },
-  'clear': { area: 'clear', span: "C", type: 'action' },
-  'plus': { area: 'plus', span: "+", type: 'action' },
-  'minus': { area: 'minus', span: "-", type: 'action' },
-  'divide': { area: 'divide', span: "/", type: 'action' },
-  'multiply': { area: 'multiply', span: "X", type: 'action' },
-  'percent': { area: 'percent', span: "%", type: 'action' },
-  'reverse': { area: 'reverse', span: "+/-", type: 'action' },
-  'equals': { area: 'equals', span: "=", type: 'action' },
-};
+export const values = [
+  { span: "0", value: 0 },
+  { span: "1", value: 1 },
+  { span: "2", value: 2 },
+  { span: "3", value: 3 },
+  { span: "4", value: 4 },
+  { span: "5", value: 5 },
+  { span: "6", value: 6 },
+  { span: "7", value: 7 },
+  { span: "8", value: 8 },
+  { span: "9", value: 9 },
+  { span: ".", value: '.' },
+];
 
-export const actions = {
-  '+': (operand1, operand2) => operand1 + operand2,
-  '-': (operand1, operand2) => operand1 - operand2,
-  'X': (operand1, operand2) => operand1 * operand2,
-  '/': (operand1, operand2) => operand1 / operand2,
-  '+/-': (operand) => -operand,
-  '%': (operand) => operand / 100,
-};
+export const actions = [
+  { span: "+", type: 'binary', action: (operand1, operand2) => operand1 + operand2 },
+  { span: "-", type: 'binary', action: (operand1, operand2) => operand1 - operand2 },
+  { span: "/", type: 'binary', action: (operand1, operand2) => operand1 / operand2 },
+  { span: "X", type: 'binary', action: (operand1, operand2) => operand1 * operand2 },
+  { span: "%", type: 'unary', action: (operand) => operand / 100 },
+  { span: "+/-", type: 'unary', action: (operand) => -operand },
+];

@@ -1,87 +1,54 @@
 <template>
-  <div class="calculator">
-    <div class="calculator__container">
-      <div class="calculator__view">
-        <div class="container">
-          <div class="calculator__history">
-            <ul class="calculator__items">
-              <li class="calculator__item">f</li>
-            </ul>
-          </div>
-          <p class="calculator__result">{{ previous }}</p>
-          <p class="calculator__result">{{ current }}</p>
-        </div>
-      </div>
-      <div class="calculator__menu">
-        <calculator-buttons :buttons="buttons" @click="handler" />
-      </div>
-    </div>
+  <div>
+    <p>Current: {{ this.current }}</p>
+    <p>Previous: {{ this.previous }}</p>
+    <p>Operation: {{ this.operation }}</p>
+
+    <button v-for="value in $options.values" @click="handleValue(value.value)">{{ value.span }}</button>
+    <button v-for="action in $options.actions" @click="handleAction(action)">{{ action.span }}</button>
+    <button>C</button>
+    <button>=</button>
   </div>
 </template>
 
 <script>
-  import CalculatorButtons from './CalculatorButtons.vue';
-  import { buttons, actions } from '../data.js';
+  import { values, actions } from '../data.js';
 
   export default {
     name: 'Calculator',
 
-    components: { CalculatorButtons },
+    values,
+    actions,
 
     data() {
       return {
         previous: 0,
         current: 0,
-        previousOperation: null,
-
-        state: 'start',
-        buttons: buttons,
+        operation: null,
       };
     },
 
     methods: {
-      handler(event) {
-        console.log(event.target);
-      },
-
-      updateCurrent({ target }) {
+      handleValue(value) {
         const separator = '';
-        const inputValue = target.innerHTML;
-        const newCurrent = [this.current, inputValue].join(separator);
+        const newCurrent = [this.current, value].join(separator);
 
-        this.current = (inputValue === '.')
+        this.current = (value === '.')
           ? newCurrent
           : parseFloat(newCurrent);
       },
 
-      action(operator) {
-        if (this.state === 'start') {
-          this.previous = this.current;
-          this.current = 0;
-        }
+      handleAction(action) {
+        const { type, action: fn } = action;
 
-        this.state = 'processing';
-        const { action: fn, type } = this.actions[operator];
-
-        switch (type) {
-          case 'unary': {
-            this.previous = fn(this.previous);
-            this.current = 0;
-            break;
-          }
-
-          case 'binary': {
-            this.previousOperation = fn;
-            break;
-          }
-
-          case 'finall': {
-            this.previous = fn(this.previousOperation)(this.previous, this.current);
-            this.current = 0;
-            break;
-          }
+        if (type === 'unary') {
+          calculateResult(fn);
         }
       },
+
+      calculateResult(action) {
+
+      }
     }
   }
 </script>
