@@ -40,14 +40,16 @@
 
       handleAction(action) {
         const { type, action: fn } = action;
+        this.previous = this.current;
+        this.operation = fn;
 
         if (type === 'unary') {
-          calculateResult(fn);
+          this.calculate();
         }
       },
 
-      calculateResult(action) {
-
+      calculate() {
+        this.previous = this.operation(this.previous);
       }
     }
   }
