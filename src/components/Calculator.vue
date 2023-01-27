@@ -1,56 +1,49 @@
 <template>
   <div class="info">
-    <p>Prev: {{ operands.previous }} {{ typeof operands.previous }}</p>
-    <p>Operand: {{ operands.current }} {{ typeof operands.current }}</p>
-    <p>Action: {{ action }}</p>
-    <p>Operator: {{ operator }}</p>
-    <p>State: {{ state }}</p>
-    <p>History: {{ history }}</p>
+    <p>Previous: {{ getPreviousOperand }}</p>
+    <p>Current: {{ getCurrentOperand }}</p>
+    <p>Operator: {{ getOperator }}</p>
+    <p>Action: {{ getAction }}</p>
+    <p>State: {{ getState }}</p>
   </div>
 
   <hr>
 
   <div class="values">
-    <!-- span - для отображения содержимого -->
-    <!--
-      value - для определения значения кнопки
-      ?? вопрос передавать просто значение в функцию или определять в data и вызывать без передачи параметров
-    -->
-    <button @click="handleAction" data-action-type="value" data-value="0">0</button>
-    <button @click="handleAction" data-action-type="value" data-value="1">1</button>
-    <button @click="handleAction" data-action-type="value" data-value="2">2</button>
-    <button @click="handleAction" data-action-type="value" data-value="3">3</button>
-    <button @click="handleAction" data-action-type="value" data-value="4">4</button>
-    <button @click="handleAction" data-action-type="value" data-value="5">5</button>
-    <button @click="handleAction" data-action-type="value" data-value="6">6</button>
-    <button @click="handleAction" data-action-type="value" data-value="7">7</button>
-    <button @click="handleAction" data-action-type="value" data-value="8">8</button>
-    <button @click="handleAction" data-action-type="value" data-value="9">9</button>
-    <button @click="handleAction" data-action-type="value" data-value=".">.</button>
+    <button @click="updateAction" data-action-type="value" data-value="0">0</button>
+    <button @click="updateAction" data-action-type="value" data-value="1">1</button>
+    <button @click="updateAction" data-action-type="value" data-value="2">2</button>
+    <button @click="updateAction" data-action-type="value" data-value="3">3</button>
+    <button @click="updateAction" data-action-type="value" data-value="4">4</button>
+    <button @click="updateAction" data-action-type="value" data-value="5">5</button>
+    <button @click="updateAction" data-action-type="value" data-value="6">6</button>
+    <button @click="updateAction" data-action-type="value" data-value="7">7</button>
+    <button @click="updateAction" data-action-type="value" data-value="8">8</button>
+    <button @click="updateAction" data-action-type="value" data-value="9">9</button>
+    <button @click="updateAction" data-action-type="value" data-value=".">.</button>
   </div>
 
   <hr>
 
   <div class="operators">
-    <!-- span - для отображения содержимого -->
-    <button @click="handleAction" data-action-type="operator" data-type="binary" data-operator="add">+</button>
-    <button @click="handleAction" data-action-type="operator" data-type="binary" data-operator="subtract">-</button>
-    <button @click="handleAction" data-action-type="operator" data-type="binary" data-operator="multiply">X</button>
-    <button @click="handleAction" data-action-type="operator" data-type="binary" data-operator="divide">/</button>
-    <button @click="handleAction" data-action-type="operator" data-type="unary" data-operator="sign">+/-</button>
-    <button @click="handleAction" data-action-type="operator" data-type="unary" data-operator="percent">%</button>
+    <button @click="updateAction" data-action-type="operator" data-type="binary" data-operator="add">+</button>
+    <button @click="updateAction" data-action-type="operator" data-type="binary" data-operator="subtract">-</button>
+    <button @click="updateAction" data-action-type="operator" data-type="binary" data-operator="multiply">X</button>
+    <button @click="updateAction" data-action-type="operator" data-type="binary" data-operator="divide">/</button>
+    <button @click="updateAction" data-action-type="operator" data-type="unary" data-operator="sign">+/-</button>
+    <button @click="updateAction" data-action-type="operator" data-type="unary" data-operator="percent">%</button>
   </div>
 
   <hr>
 
   <div class="action">
-    <button>AC</button>
-    <button @click="calculate">=</button>
+    <button @click="updateAction" data-action-type="clear">AC</button>
+    <button @click="updateAction" data-action-type="calculate">=</button>
   </div>
 </template>
 
 <script>
-  import { operations } from '../data';
+import { operations } from '../data';
 
   export default {
     name: 'Calculator',
@@ -59,27 +52,40 @@
       return {
         state: 'default',
         action: null,
-        operator: null,
-        operands: {
-          previous: 0,
-          current: 0,
+        calculationData: {
+          history: [],
+          operator: null,
+          operands: {
+            previous: null,
+            current: 0,
+          },
         },
-
-        history: [],
       };
     },
 
     computed: {
       getCurrentOperand() {
-        return this.operands.current;
+        return this.calculationData.operands.current;
       },
 
       getPreviousOperand() {
-        return this.operands.previous;
+        return this.calculationData.operands.previous;
       },
 
       getOperator() {
-        return this.operator;
+        return this.calculationData.operator;
+      },
+
+      getHistory() {
+        return this.calculationData.history;
+      },
+
+      getAction() {
+        return this.action;
+      },
+
+      getActionType() {
+        return this.getAction?.actionType;
       },
 
       getState() {
@@ -88,75 +94,93 @@
     },
 
     methods: {
-      handleAction({ target }) {
+      updateAction({ target }) {
         this.action = { ...target.dataset };
       },
 
-      updateOperand(value) {
+      updateCurrentOperand({ value }) {
         const separator = '';
-        const number = parseInt([this.getCurrentOperand, value].join(separator));
-        this.operands.current = number;
+        const number = parseFloat([this.getCurrentOperand, value].join(separator));
+        this.calculationData.operands.current = number;
       },
 
-      updateOperator(data) {
-        this.operator = { ...data };
+      updatePreviousOperand(value) {
+        this.calculationData.operands.previous = value;
       },
 
-      // calculate() {
-      //   if (this.getState === 'processed' || this.getState === 'default') {
-      //     console.log('Выберите оператор!');
-      //   }
-      //   const { type, operator } = this.operator;
-      //   const operation = operations[operator];
+      resetCurrentOperand() {
+        this.calculationData.operands.current = 0;
+      },
 
-      //   this.operands.previous = operation(this.getPreviousOperand, this.getCurrentOperand);
-      //   this.operator = null;
-      // },
+      resetPreviousOperand() {
+        this.calculationData.operands.previous = 0;
+      },
+
+      resetAction() {
+        this.action = null;
+      },
+
+      updateOperator(value) {
+        this.calculationData.operator = { ...value };
+      },
+
+      calculate() {
+        const operation = operations[this.getOperator];
+        this.calculationData.operands.current = operation(this.getPreviousOperand, this.getCurrentOperand);
+      },
     },
 
     watch: {
       action() {
-        const { actionType } = this.action;
-
-        switch(actionType) {
+        switch(this.getActionType) {
           case 'value': {
-            const { value } = this.action;
-            this.updateOperand(value);
+            this.updateCurrentOperand(this.getAction);
             break;
           }
+
           case 'operator': {
-            const { type, operator } = this.action;
-            this.updateOperator({ type, operator });
+            this.updateOperator(this.getAction);
             break;
           }
-          case 'clear': {
-            // this.reset();
-            break;
-          }
-          case 'calculate': {
-            // this.calculate();
-            break;
-          }
+
+          // case 'operator': {
+          //   if (this.getActionOperatorType === 'binary') {
+          //     console.log('binary');
+          //   }
+
+          //   if (this.getActionOperatorType === 'unary') {
+          //     console.log('unary');
+          //   }
+
+          //   break;
+          // }
+
+          // case 'unaryOperator': {
+          //   this.updateOperator(action.operator);
+          //   this.calculate();
+          //   break;
+          // }
+
+          // case 'binaryOperator': {
+          //   this.updateOperator(action.operator);
+          //   this.updatePreviousOperand(this.getCurrentOperand);
+          //   this.resetCurrentOperand();
+          //   break;
+          // }
+
+          // case 'clear': {
+          //   // this.clear();
+          //   break;
+          // }
+
+          // case 'calculate': {
+          //   this.calculate();
+          //   break;
+          // }
         }
+
+        this.resetAction();
       },
-
-      // operator: {
-      //   deep: true,
-      //   handler(newOperator) {
-      //     this.state = (!!newOperator) ? 'processing' : 'processed';
-      //   },
-      // },
-
-      // state(newOperator, oldOperator) {
-      //   if (newOperator === 'processing' && oldOperator === 'default') {
-      //     this.operands.previous = this.operands.current;
-      //     this.operands.current = 0;
-      //   }
-
-      //   if (newOperator === 'processed' && oldOperator === 'processing') {
-      //     this.operands.current = 0;
-      //   }
-      // },
     },
   }
 </script>
