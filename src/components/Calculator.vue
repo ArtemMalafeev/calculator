@@ -1,62 +1,41 @@
 <template>
   <div class="info">
+    <p>CurrentView: {{ getCurrentOperand }}</p>
+    <hr>
     <p>Previous: {{ getPreviousOperand }}</p>
     <p>Current: {{ getCurrentOperand }}</p>
     <p>Operator: {{ getOperator }}</p>
     <p>Action: {{ getAction }}</p>
-    <p>State: {{ getState }}</p>
+    <p>HistoryAction: {{ getHistoryAction }}</p>
   </div>
 
   <hr>
 
-  <div class="values">
-    <button @click="handleAction" data-action-type="value" data-value="0">0</button>
-    <button @click="handleAction" data-action-type="value" data-value="1">1</button>
-    <button @click="handleAction" data-action-type="value" data-value="2">2</button>
-    <button @click="handleAction" data-action-type="value" data-value="3">3</button>
-    <button @click="handleAction" data-action-type="value" data-value="4">4</button>
-    <button @click="handleAction" data-action-type="value" data-value="5">5</button>
-    <button @click="handleAction" data-action-type="value" data-value="6">6</button>
-    <button @click="handleAction" data-action-type="value" data-value="7">7</button>
-    <button @click="handleAction" data-action-type="value" data-value="8">8</button>
-    <button @click="handleAction" data-action-type="value" data-value="9">9</button>
-    <button @click="handleAction" data-action-type="value" data-value=".">.</button>
-  </div>
-
-  <hr>
-
-  <div class="operators">
-    <button @click="handleAction" data-action-type="operator" data-type="binary" data-operator="add">+</button>
-    <button @click="handleAction" data-action-type="operator" data-type="binary" data-operator="subtract">-</button>
-    <button @click="handleAction" data-action-type="operator" data-type="binary" data-operator="multiply">X</button>
-    <button @click="handleAction" data-action-type="operator" data-type="binary" data-operator="divide">/</button>
-    <button @click="handleAction" data-action-type="operator" data-type="unary" data-operator="sign">+/-</button>
-    <button @click="handleAction" data-action-type="operator" data-type="unary" data-operator="percent">%</button>
-  </div>
-
-  <hr>
-
-  <div class="action">
-    <button @click="handleAction" data-action-type="clear">AC</button>
-    <button @click="handleAction" data-action-type="calculate">=</button>
+  <div class="buttons">
+    <button @click="updateAction(button)" v-for="button in $options.buttons">
+      {{ button.view }}
+    </button>
   </div>
 </template>
 
 <script>
-import { operations } from '../data';
+import { operations, buttons } from '../data';
 
   export default {
     name: 'Calculator',
 
+    buttons,
+    operations,
+
     data() {
       return {
-        state: 'default',
+        historyAction: [],
         action: null,
         calculationData: {
           history: [],
           operator: null,
           operands: {
-            previous: null,
+            previous: 0,
             current: 0,
           },
         },
@@ -85,7 +64,7 @@ import { operations } from '../data';
       },
 
       getActionType() {
-        return this.getAction?.actionType;
+        return this.getAction?.type;
       },
 
       getActionValue() {
@@ -93,7 +72,7 @@ import { operations } from '../data';
       },
 
       getActionOperatorType() {
-        return this.getAction?.type;
+        return this.getAction?.operatorType;
       },
 
       getActionOperator() {
@@ -103,11 +82,23 @@ import { operations } from '../data';
       getState() {
         return this.state;
       },
+
+      getHistoryAction() {
+        return this.historyAction;
+      },
+
+      isEmptyHistoryAction() {
+        return !this.getHistoryAction.length;
+      },
+
+      operatorIsActive() {
+        return !!this.calculationData.operator;
+      }
     },
 
     methods: {
-      handleAction({ target }) {
-        this.action = { ...target.dataset };
+      updateAction(button) {
+        this.action = { ...button };
       },
 
       updateOperand(value) {
@@ -116,8 +107,28 @@ import { operations } from '../data';
         this.calculationData.operands.current = number;
       },
 
+      updateOperator(data) {
+        this.calculationData.operator = { ...data };
+      },
+
       updatePreviousOperand(value) {
         this.calculationData.operands.previous = value;
+      },
+
+      updateCurrentOperand(value) {
+        this.calculationData.operands.current = value;
+      },
+
+      updateHistoryAction(value) {
+        if (this.isEmptyHistoryAction) {
+          this.historyAction.push(value);
+        } else {
+          const lastAction = this.getHistoryAction.at(-1);
+          console.log(value, lastAction);
+          if (value !== lastAction) {
+            this.historyAction.push(value);
+          }
+        }
       },
 
       resetCurrentOperand() {
@@ -136,11 +147,31 @@ import { operations } from '../data';
         this.action = null;
       },
 
-      updateOperator(value) {
-        this.calculationData.operator = { ...value };
+      clear() {
+        if (this.isEmptyHistoryAction) {
+          console.log('Калькулятор очищен');
+        } else {
+          const lastAction = this.getHistoryAction.at(-1);
+          if (lastAction === 'updateOperand') {
+            this.resetCurrentOperand();
+          }
+
+          if (lastAction === 'updateOperator') {
+            this.resetOperator();
+            this.calculationData.operands.current = this.getPreviousOperand;
+            this.resetPreviousOperand();
+          }
+
+          this.historyAction.pop();
+        }
       },
 
       calculate() {
+        if (this.getOperator === null) {
+          alert('Выберите оператор!');
+          return;
+        }
+
         const type = this.getOperator.type;
         const operator = this.getOperator.operator;
         const operation = operations[operator];
@@ -159,9 +190,8 @@ import { operations } from '../data';
       action() {
         switch(this.getActionType) {
           case 'value': {
-            // this.state = 'updateOperand';
-            // this.validateValue();
             this.updateOperand(this.getActionValue);
+            this.updateHistoryAction('updateOperand');
             break;
           }
 
@@ -170,38 +200,55 @@ import { operations } from '../data';
               type: this.getActionOperatorType,
               operator: this.getActionOperator
             });
+            this.updateHistoryAction('updateOperator');
+            break;
+          }
+
+          case 'clear': {
+            this.clear();
             break;
           }
 
           case 'calculate': {
             this.calculate();
             this.resetOperator();
-            this.resetPreviousOperand();
             this.resetAction();
+            this.resetPreviousOperand();
             break;
-          }
-
-          default: {
-            this.state = 'processing';
           }
         }
       },
 
       'calculationData.operator'(newOperator, oldOperator) {
-        if (newOperator === null) {
+        if (newOperator.type === null) {
           return;
-        }
-
-        if (newOperator.type === 'binary') {
-          if (oldOperator === null || oldOperator.type === 'unary') {
-            this.updatePreviousOperand(this.getCurrentOperand);
-            this.resetCurrentOperand();
+        } else {
+          if (newOperator.type === 'binary') {
+          this.updatePreviousOperand(this.getCurrentOperand);
+          this.resetCurrentOperand();
+          // this.updateHistoryAction('saveOperand');
+          // this.updateHistoryAction('saveOperator');
           }
         }
+        // if (newOperator === null) {
+        //   console.log('-');
+        //   return;
+        // }
 
-        if (newOperator.type === 'unary') {
-          this.calculate();
-        }
+        // if (newOperator.type === 'binary') {
+        //   if (oldOperator === null || oldOperator.type === 'unary') {
+        //     console.log('=');
+        //     this.updatePreviousOperand(this.getCurrentOperand);
+        //     this.resetCurrentOperand();
+        //   }
+        // }
+
+        // if (newOperator.type === 'unary') {
+        //   this.calculate();
+        //   this.resetOperator();
+        //   this.resetAction();
+        //   this.resetPreviousOperand();
+        // }
       },
     },
   }
