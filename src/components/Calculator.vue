@@ -5,44 +5,63 @@
     <p>Previous: {{ getPreviousOperand }}</p>
     <p>Current: {{ getCurrentOperand }}</p>
     <p>Operator: {{ getOperator }}</p>
-    <p>Action: {{ getAction }}</p>
+    <p>Event: {{ event }}</p>
     <p>HistoryAction: {{ getHistoryAction }}</p>
   </div>
 
   <hr>
 
   <div class="buttons">
-    <button @click="updateAction(button)" v-for="button in $options.buttons">
-      {{ button.view }}
-    </button>
+    <calculator-button
+      v-for="button in $options.buttons"
+      :button="button"
+      @handler="handlerButton"
+    />
   </div>
 </template>
 
 <script>
-import { operations, buttons } from '../data';
+  import { buttons } from '../data.js';
+  import CalculatorButton from './CalculatorButton.vue';
 
   export default {
     name: 'Calculator',
 
+    components: {
+      CalculatorButton,
+    },
+
     buttons,
-    operations,
 
     data() {
       return {
         historyAction: [],
-        action: null,
+        event: null,
         calculationData: {
           history: [],
           operator: null,
           operands: {
-            previous: 0,
-            current: 0,
+            previous: '0',
+            current: '0',
           },
         },
       };
     },
 
     computed: {
+      getEvent() {
+        return this.event;
+      },
+
+      getEventType() {
+        return this.getEvent.type;
+      },
+
+      getEventData() {
+        return this.getEvent.data;
+      },
+
+      // ---
       getCurrentOperand() {
         return this.calculationData.operands.current;
       },
@@ -57,26 +76,6 @@ import { operations, buttons } from '../data';
 
       getHistory() {
         return this.calculationData.history;
-      },
-
-      getAction() {
-        return this.action;
-      },
-
-      getActionType() {
-        return this.getAction?.type;
-      },
-
-      getActionValue() {
-        return this.getAction?.value;
-      },
-
-      getActionOperatorType() {
-        return this.getAction?.operatorType;
-      },
-
-      getActionOperator() {
-        return this.getAction?.operator;
       },
 
       getState() {
@@ -97,9 +96,15 @@ import { operations, buttons } from '../data';
     },
 
     methods: {
-      updateAction(button) {
-        this.action = { ...button };
+      handlerButton(data) {
+        this.updateEvent(data);
       },
+
+      updateEvent(data) {
+        this.event = { ...data };
+      },
+
+      // ----
 
       updateOperand(value) {
         const separator = '';
@@ -187,33 +192,34 @@ import { operations, buttons } from '../data';
     },
 
     watch: {
-      action() {
-        switch(this.getActionType) {
+      event() {
+        switch(this.getEventType) {
           case 'value': {
-            this.updateOperand(this.getActionValue);
-            this.updateHistoryAction('updateOperand');
+            this.updateOperand(this.getEventData.value);
+            // this.updateOperand(this.getActionValue);
+            // this.updateHistoryAction('updateOperand');
             break;
           }
 
           case 'operator': {
-            this.updateOperator({
-              type: this.getActionOperatorType,
-              operator: this.getActionOperator
-            });
-            this.updateHistoryAction('updateOperator');
+            // this.updateOperator({
+            //   type: this.getActionOperatorType,
+            //   operator: this.getActionOperator
+            // });
+            // this.updateHistoryAction('updateOperator');
             break;
           }
 
           case 'clear': {
-            this.clear();
+            // this.clear();
             break;
           }
 
           case 'calculate': {
-            this.calculate();
-            this.resetOperator();
-            this.resetAction();
-            this.resetPreviousOperand();
+            // this.calculate();
+            // this.resetOperator();
+            // this.resetAction();
+            // this.resetPreviousOperand();
             break;
           }
         }
@@ -228,8 +234,7 @@ import { operations, buttons } from '../data';
           this.resetCurrentOperand();
           // this.updateHistoryAction('saveOperand');
           // this.updateHistoryAction('saveOperator');
-          }
-        }
+          }}
         // if (newOperator === null) {
         //   console.log('-');
         //   return;
