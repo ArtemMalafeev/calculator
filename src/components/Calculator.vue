@@ -2,11 +2,11 @@
   <div class="info">
     <p>CurrentView: {{ getCurrentOperand }}</p>
     <hr>
-    <p>Previous: {{ getPreviousOperand }}</p>
+    <p>Previous: {{ calculationData.operands.previous }}</p>
     <p>Current: {{ getCurrentOperand }}</p>
-    <p>Operator: {{ getOperator }}</p>
+    <p>Operator: {{ calculationData.operator }}</p>
     <p>Event: {{ event }}</p>
-    <p>HistoryAction: {{ getHistoryAction }}</p>
+    <p>History event: {{ historyEvent }}</p>
   </div>
 
   <hr>
@@ -15,7 +15,7 @@
     <calculator-button
       v-for="button in $options.buttons"
       :button="button"
-      @handler="handlerButton"
+      @handler="buttonHandler"
     />
   </div>
 </template>
@@ -35,13 +35,13 @@
 
     data() {
       return {
-        historyAction: [],
+        historyEvent: [],
         event: null,
         calculationData: {
           history: [],
           operator: null,
           operands: {
-            previous: '0',
+            previous: null,
             current: '0',
           },
         },
@@ -61,42 +61,17 @@
         return this.getEvent.data;
       },
 
-      // ---
       getCurrentOperand() {
         return this.calculationData.operands.current;
       },
 
-      getPreviousOperand() {
-        return this.calculationData.operands.previous;
+      getCurrentOperandLength() {
+        return this.getCurrentOperand.length;
       },
-
-      getOperator() {
-        return this.calculationData.operator;
-      },
-
-      getHistory() {
-        return this.calculationData.history;
-      },
-
-      getState() {
-        return this.state;
-      },
-
-      getHistoryAction() {
-        return this.historyAction;
-      },
-
-      isEmptyHistoryAction() {
-        return !this.getHistoryAction.length;
-      },
-
-      operatorIsActive() {
-        return !!this.calculationData.operator;
-      }
     },
 
     methods: {
-      handlerButton(data) {
+      buttonHandler(data) {
         this.updateEvent(data);
       },
 
@@ -104,13 +79,54 @@
         this.event = { ...data };
       },
 
+      currentOperandHandler(type, value) {
+        switch(type) {
+          case 'update': {
+            this.updateCurrentOperand(value);
+            break;
+          }
+          case 'assign':
+          case 'reset': {
+            this.assignCurrentOperand(value);
+            break;
+          }
+        }
+      },
+
+      updateCurrentOperand(value) {
+        if (this.getCurrentOperandLength === 1 && this.getCurrentOperand.at(0) === '0' && value !== '.') {
+          this.assignCurrentOperand(value);
+        } else {
+          const separator = '';
+          const regularExpression = /^-?0{1}(\.{1}[0-9]*)?$|^-?[1-9]{1}[0-9]*$|^-?[1-9]{1}[0-9]*(\.{1}[0-9]*)?$/;
+          const expression = [this.getCurrentOperand, value].join(separator);
+          const isValidExpression = regularExpression.test(expression);
+
+          this.calculationData.operands.current = isValidExpression
+            ? expression
+            : this.getCurrentOperand;
+        }
+      },
+
+      assignCurrentOperand(value) {
+        this.calculationData.operands.current = value;
+      },
+
+      // -------
+
+      // checkCorrectOperand(value) {
+
+      // },
+
+      // reg: /[0-9]+/
+
       // ----
 
-      updateOperand(value) {
-        const separator = '';
-        const number = parseFloat([this.getCurrentOperand, value].join(separator));
-        this.calculationData.operands.current = number;
-      },
+      // updateOperand(value) {
+      //   const separator = '';
+      //   const number = parseFloat([this.getCurrentOperand, value].join(separator));
+      //   this.calculationData.operands.current = number;
+      // },
 
       updateOperator(data) {
         this.calculationData.operator = { ...data };
@@ -120,9 +136,9 @@
         this.calculationData.operands.previous = value;
       },
 
-      updateCurrentOperand(value) {
-        this.calculationData.operands.current = value;
-      },
+      // updateCurrentOperand(value) {
+      //   this.calculationData.operands.current = value;
+      // },
 
       updateHistoryAction(value) {
         if (this.isEmptyHistoryAction) {
@@ -195,18 +211,15 @@
       event() {
         switch(this.getEventType) {
           case 'value': {
-            this.updateOperand(this.getEventData.value);
-            // this.updateOperand(this.getActionValue);
-            // this.updateHistoryAction('updateOperand');
+            this.currentOperandHandler('update', this.getEventData.value);
             break;
           }
 
           case 'operator': {
-            // this.updateOperator({
-            //   type: this.getActionOperatorType,
-            //   operator: this.getActionOperator
-            // });
-            // this.updateHistoryAction('updateOperator');
+            this.operatorHandler({
+              type: this.getEventData.type,
+              func: this.getEventData.func,
+            });
             break;
           }
 
@@ -225,16 +238,16 @@
         }
       },
 
-      'calculationData.operator'(newOperator, oldOperator) {
-        if (newOperator.type === null) {
-          return;
-        } else {
-          if (newOperator.type === 'binary') {
-          this.updatePreviousOperand(this.getCurrentOperand);
-          this.resetCurrentOperand();
+      // 'calculationData.operator'(newOperator, oldOperator) {
+      //   if (newOperator.type === null) {
+      //     return;
+      //   } else {
+      //     if (newOperator.type === 'binary') {
+      //     this.updatePreviousOperand(this.getCurrentOperand);
+      //     this.resetCurrentOperand();
           // this.updateHistoryAction('saveOperand');
           // this.updateHistoryAction('saveOperator');
-          }}
+          // }}
         // if (newOperator === null) {
         //   console.log('-');
         //   return;
@@ -254,7 +267,7 @@
         //   this.resetAction();
         //   this.resetPreviousOperand();
         // }
-      },
+      // },
     },
   }
 </script>
