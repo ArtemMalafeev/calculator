@@ -1,12 +1,12 @@
 <template>
   <div class="info">
-    <p>CurrentView: {{ getCurrentOperand }}</p>
+    <!-- <p>CurrentView: {{ getCurrentOperand }}</p> -->
     <hr>
-    <p>Previous: {{ calculationData.operands.previous }}</p>
-    <p>Current: {{ getCurrentOperand }}</p>
-    <p>Operator: {{ calculationData.operator }}</p>
-    <p>Event: {{ event }}</p>
-    <p>History event: {{ historyEvent }}</p>
+    <p>Primary operand: {{ getPrimaryOperand }}</p>
+    <p>Secondary operand: {{ getSecondaryOperand }}</p>
+    <p>Event: {{ getEvent }}</p>
+    <!-- <p>Operator: {{ calculationData.operator }}</p>
+    <p>History event: {{ historyEvent }}</p> -->
   </div>
 
   <hr>
@@ -15,7 +15,7 @@
     <calculator-button
       v-for="button in $options.buttons"
       :button="button"
-      @handler="buttonHandler"
+      @handler="clickHandler"
     />
   </div>
 </template>
@@ -35,15 +35,11 @@
 
     data() {
       return {
-        historyEvent: [],
         event: null,
-        calculationData: {
-          history: [],
-          operator: null,
-          operands: {
-            previous: null,
-            current: '0',
-          },
+        operator: null,
+        operands: {
+          primary: '0',
+          secondary: null,
         },
       };
     },
@@ -51,6 +47,10 @@
     computed: {
       getEvent() {
         return this.event;
+      },
+
+      getOperands() {
+        return this.operands;
       },
 
       getEventType() {
@@ -61,81 +61,86 @@
         return this.getEvent.data;
       },
 
-      getCurrentOperand() {
-        return this.calculationData.operands.current;
+      getPrimaryOperand() {
+        return this.getOperands.primary;
       },
 
-      getCurrentOperandLength() {
-        return this.getCurrentOperand.length;
+      getPrimaryOperandLength() {
+        return this.getPrimaryOperand.length;
+      },
+
+      getSecondaryOperand() {
+        return this.getOperands.secondary;
       },
     },
 
     methods: {
-      buttonHandler(data) {
-        this.updateEvent(data);
+      clickHandler(type, data) {
+        this.eventUpdate({ type, data });
       },
 
-      updateEvent(data) {
-        this.event = { ...data };
+      eventUpdate(eventData) {
+        this.event = { ...eventData };
       },
 
-      operandsHandler(type, value='0') {
+      operatorHandler(type, func) {
         switch(type) {
-          case 'update': {
-            this.updateOperand(value);
+          case 'binary': {
+            this.operandHandler('assign', 'previous', this.getCurrentOperand);
+            this.operandHandler('reset', 'current');
             break;
           }
-          case 'assign':
-          case 'reset': {
-            this.assignOperand(value);
+          case 'unary': {
             break;
           }
         }
       },
 
-      updateOperand(value) {
-        if (this.getCurrentOperandLength === 1 && this.getCurrentOperand.at(0) === '0' && value !== '.') {
-          this.assignOperand(value);
-        } else {
-          const separator = '';
-          const regularExpression = /^-?0{1}(\.{1}[0-9]*)?$|^-?[1-9]{1}[0-9]*$|^-?[1-9]{1}[0-9]*(\.{1}[0-9]*)?$/;
-          const expression = [this.getCurrentOperand, value].join(separator);
-          const isValidExpression = regularExpression.test(expression);
-
-          this.calculationData.operands.current = isValidExpression
-            ? expression
-            : this.getCurrentOperand;
+      updatePrimaryOperand(value) {
+        const newOperand = this.isStartValue(value) ? value : this.createNewOperand(value);
+        if (this.isValidOperand(newOperand)) {
+          this.assignPrimaryOperand(newOperand);
         }
+        // else push and show error
       },
 
-      assignOperand(value) {
-        this.calculationData.operands.current = value;
+      createNewOperand(value) {
+        const separator = '';
+
+        return [this.getPrimaryOperand, value].join(separator);
       },
 
-      // operatorHandler(type, func) {
-      //   switch(type) {
-      //     case 'binary': {
-      //       this.updatePreviousOperand();
-      //       this.currentOperandHandler('reset');
-      //       break;
-      //     }
-      //     case 'unary': {
-      //       break;
-      //     }
-      //   }
-      // },
+      isStartValue(value) {
+        return this.getPrimaryOperandLength === 1 && this.getPrimaryOperand.at(0) === '0' && value !== '.';
+      },
+
+      isValidOperand(operand) {
+        const regExp = /^-?0{1}(\.{1}[0-9]*)?$|^-?[1-9]{1}[0-9]*$|^-?[1-9]{1}[0-9]*(\.{1}[0-9]*)?$/;
+
+        return regExp.test(operand);
+      },
+
+      assignPrimaryOperand(value) {
+        this.operands.primary = value;
+      },
+
+      assignSecondaryOperand(value) {
+        this.operands.secondary = value;
+      },
     },
 
     watch: {
       event() {
         switch(this.getEventType) {
           case 'value': {
-            this.operandsHandler('update', this.getEventData.value);
+            const { value } = this.getEventData;
+            this.updatePrimaryOperand(value);
             break;
           }
 
           case 'operator': {
-            this.operatorHandler(this.getEventData.type, this.getEventData.func);
+            const { type, func } = this.getEventData;
+            this.updateOperator(type, func);
             break;
           }
 
@@ -148,6 +153,13 @@
           }
         }
       },
+
+      'operands.primary'(newOperand, oldOperand) {
+        if (!this.isValidOperand(newOperand)) {
+          this.operands.primary = oldOperand;
+          console.log('Вставлен недопустимый операнд');
+        }
+      }
     },
   }
 </script>

@@ -35,10 +35,7 @@
 
     methods: {
       handler() {
-        this.$emit('handler', {
-          type: this.getType,
-          data: this.getData,
-        });
+        this.$emit('handler', this.getType, this.getData);
       },
     },
   }
