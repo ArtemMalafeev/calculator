@@ -1,27 +1,24 @@
 <template>
   <div class="info">
-    <!-- <p>CurrentView: {{ getCurrentOperand }}</p> -->
     <hr>
     <p>Primary operand: {{ getPrimaryOperand }}</p>
     <p>Secondary operand: {{ getSecondaryOperand }}</p>
     <p>Event: {{ getEvent }}</p>
-    <!-- <p>Operator: {{ calculationData.operator }}</p>
-    <p>History event: {{ historyEvent }}</p> -->
   </div>
 
   <hr>
 
   <div class="buttons">
     <calculator-button
-      v-for="button in $options.buttons"
-      :button="button"
-      @handler="clickHandler"
+      v-for="{ identificator, action } in $options.buttons"
+      :identificator="identificator"
+      @handler="clickHandler(identificator, action)"
     />
   </div>
 </template>
 
 <script>
-  import { buttons } from '../data.js';
+  import { buttons, information } from '../data.js';
   import CalculatorButton from './CalculatorButton.vue';
 
   export default {
@@ -32,6 +29,7 @@
     },
 
     buttons,
+    information,
 
     data() {
       return {
@@ -75,8 +73,8 @@
     },
 
     methods: {
-      clickHandler(type, data) {
-        this.eventUpdate({ type, data });
+      clickHandler(identificator, action) {
+        this.eventUpdate({ identificator, action });
       },
 
       eventUpdate(eventData) {

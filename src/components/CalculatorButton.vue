@@ -1,41 +1,41 @@
 <template>
-  <button type="button" @click="handler">{{ getView }}</button>
+  <button type="button" @click="handler">{{ getView }} </button>
 </template>
 
 <script>
+  import { views } from '../data.js';
+
   export default {
     name: 'CalculatorButton',
 
     emits: ['handler'],
 
+    views,
+
     props: {
-      button: {
-        type: Object,
+      identificator: {
+        type: String,
         required: true,
       },
     },
 
     computed: {
-      getButton() {
-        return this.button;
+      getIdentificator() {
+        return this.identificator;
+      },
+
+      getViews() {
+        return this.$options.views;
       },
 
       getView() {
-        return this.getButton.view;
-      },
-
-      getData() {
-        return this.getButton.data;
-      },
-
-      getType() {
-        return this.getButton.type;
+        return this.getViews[this.getIdentificator];
       },
     },
 
     methods: {
       handler() {
-        this.$emit('handler', this.getType, this.getData);
+        this.$emit('handler');
       },
     },
   }

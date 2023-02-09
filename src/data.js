@@ -1,127 +1,94 @@
 export const buttons = [
-  {
-    view: '0',
-    type: 'value',
-    data: {
-      value: '0',
-    },
-  },
-  {
-    view: '1',
-    type: 'value',
-    data: {
-      value: '1',
-    },
-  },
-  {
-    view: '2',
-    type: 'value',
-    data: {
-      value: '2',
-    },
-  },
-  {
-    view: '3',
-    type: 'value',
-    data: {
-      value: '3',
-    },
-  },
-  {
-    view: '4',
-    type: 'value',
-    data: {
-      value: '4',
-    },
-  },
-  {
-    view: '5',
-    type: 'value',
-    data: {
-      value: '5',
-    },
-  },
-  {
-    view: '6',
-    type: 'value',
-    data: {
-      value: '6',
-    },
-  },
-  {
-    view: '7',
-    type: 'value',
-    data: {
-      value: '7',
-    },
-  },
-  {
-    view: '8',
-    type: 'value',
-    data: {
-      value: '8',
-    },
-  },
-  {
-    view: '9',
-    type: 'value',
-    data: {
-      value: '9',
-    },
-  },
-  {
-    view: '.',
-    type: 'value',
-    data: {
-      value: '.',
-    },
-  },
-  {
-    view: '+',
-    type: 'operator',
-    data: {
-      type: 'binary',
-      func: (operand1, operand2) => operand1 + operand2,
-    },
-  },
-  {
-    view: '-',
-    type: 'operator',
-    data: {
-      type: 'binary',
-      func: (operand1, operand2) => operand1 - operand2,
-    },
-  },
-  {
-    view: '/',
-    type: 'operator',
-    data: {
-      type: 'binary',
-      func: (operand1, operand2) => operand1 / operand2,
-    },
-  },
-  {
-    view: 'X',
-    type: 'operator',
-    data: {
-      type: 'binary',
-      func: (operand1, operand2) => operand1 * operand2,
-    },
-  },
-  {
-    view: '%',
-    type: 'operator',
-    data: {
-      type: 'unary',
-      func: (operand) => operand / 100,
-    },
-  },
-  {
-    view: '+-',
-    type: 'operator',
-    data: {
-      type: 'unary',
-      func: (operand) => -operand,
-    },
-  },
+  { identificator: 'zero' },
+  { identificator: 'one' },
+  { identificator: 'two' },
+  { identificator: 'three' },
+  { identificator: 'five' },
+  { identificator: 'six' },
+  { identificator: 'seven' },
+  { identificator: 'eight' },
+  { identificator: 'add' },
+  { identificator: 'subtract' },
+  { identificator: 'divide' },
+  { identificator: 'multiply' },
+  { identificator: 'sign' },
+  { identificator: 'procent' },
+  { identificator: 'delete' },
+  { identificator: 'calculate' },
 ];
+
+export const views = {
+  'zero': '0',
+  'one': '1',
+  'two': '2',
+  'three': '3',
+  'four': '4',
+  'five': '5',
+  'six': '6',
+  'seven': '7',
+  'eight': '8',
+  'nine': '9',
+  'add': '+',
+  'subtract': '-',
+  'multiply': 'X',
+  'divide': '/',
+  'sign': '-/+',
+  'procent': '%',
+  'delete': 'C',
+  'calculate': '=',
+};
+
+export const information = {
+  'zero': { action: 'addValue', data: '0' },
+  'one': { action: 'addValue', data: '1' },
+  'two': { action: 'addValue', data: '2' },
+  'three': { action: 'addValue', data: '3' },
+  'four': { action: 'addValue', data: '4' },
+  'five': { action: 'addValue', data: '5' },
+  'six': { action: 'addValue', data: '6' },
+  'seven': { action: 'addValue', data: '7' },
+  'eight': { action: 'addValue', data: '8' },
+  'nine': { action: 'addValue', data: '9' },
+  'add': {
+    action: 'addOperator',
+    data: {
+      type: 'binary',
+      func: (operand1, operand2) => operand1 + operand2
+    }
+  },
+  'subtract': {
+    action: 'addOperator',
+    data: {
+      type: 'binary',
+      func: (operand1, operand2) => operand1 - operand2
+    }
+  },
+  'divide': {
+    action: 'addOperator',
+    data: {
+      type: 'binary',
+      func: (operand1, operand2) => operand1 / operand2
+    }
+  },
+  'multiply': {
+    action: 'addOperator',
+    data: {
+      type: 'binary',
+      func: (operand1, operand2) => operand1 * operand2
+    }
+  },
+  'sign': {
+    action: 'addOperator',
+    data: {
+      type: 'unary',
+      func: (operand) => -operand
+    }
+  },
+  'procent': {
+    action: 'addOperator',
+    data: {
+      type: 'unary',
+      func: (operand) => operand / 100
+    }
+  },
+};
